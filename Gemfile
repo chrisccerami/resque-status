@@ -9,4 +9,5 @@ end
 
 group :development do
   gem 'jeweler'
+  gem 'timecop'
 end

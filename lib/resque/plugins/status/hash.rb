@@ -116,7 +116,7 @@ module Resque
             (redis.zrevrange(set_key, (range_start.abs), ((range_end || 1).abs)) || [])
           else
             # Because we want a reverse chronological order, we need to get a range starting
-            # by the higest negative number.
+            # by the highest negative number.
             redis.zrevrange(set_key, 0, -1) || []
           end
         end
