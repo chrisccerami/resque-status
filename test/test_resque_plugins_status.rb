@@ -308,6 +308,19 @@ class TestResquePluginsStatus < Minitest::Test
         it "save message" do
           assert_equal "At 50%", @job.status.message
         end
+
+        it "blows up with a negative total" do
+          assert_raises Resque::Plugins::Status::NotANumber do
+            @job.at(1, -1, "Negative totals don't make sense")
+          end
+        end
+
+        it "completes when total is 0" do
+          @job.at(0, 0, "There are no iterations, so we're done")
+
+          job_status = Resque::Plugins::Status::Hash.get(@job.uuid)
+          assert job_status.completed?
+        end
       end
 
       describe "#failed" do

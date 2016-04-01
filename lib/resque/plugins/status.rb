@@ -204,13 +204,19 @@ module Resque
       # This will kill the job if it has been added to the kill list with
       # <tt>Resque::Plugins::Status::Hash.kill()</tt>
       def at(num, total, *messages)
-        if total.to_f <= 0.0
-          raise(NotANumber, "Called at() with total=#{total} which is not a number")
+        if total.to_f < 0.0
+          raise(NotANumber, "Called at() with total=#{total}; dividing by #{total} would result in an invalid percentage")
+        elsif total.to_f == 0.0
+          completed({
+            'num' => num,
+            'total' => total
+          }, *messages)
+        else
+          tick({
+            'num' => num,
+            'total' => total
+          }, *messages)
         end
-        tick({
-          'num' => num,
-          'total' => total
-        }, *messages)
       end
 
       # sets the status of the job for the current itteration. You should use
