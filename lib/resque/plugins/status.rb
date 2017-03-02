@@ -90,31 +90,13 @@ module Resque
         #       job_id = ExampleJob.create(:num => 100)
         #
         def create(options = {})
-          self.enqueue(self, options)
-        end
-
-        # Adds a job of type <tt>klass<tt> to the queue with <tt>options<tt>.
-        #
-        # Returns the UUID of the job if the job was queued, or nil if the job was
-        # rejected by a before_enqueue hook.
-        def enqueue(klass, options = {})
-          self.enqueue_to(Resque.queue_from_class(klass) || queue, klass, options)
-        end
-
-        # Adds a job of type <tt>klass<tt> to a specified queue with <tt>options<tt>.
-        #
-        # Returns the UUID of the job if the job was queued, or nil if the job was
-        # rejected by a before_enqueue hook.
-        def enqueue_to(queue, klass, options = {})
           uuid = Resque::Plugins::Status::Hash.generate_uuid
-          Resque::Plugins::Status::Hash.create uuid, :options => options
+          Resque.enqueue(self, uuid, options)
+        end
 
-          if Resque.enqueue_to(queue, klass, uuid, options)
-            uuid
-          else
-            Resque::Plugins::Status::Hash.remove(uuid)
-            nil
-          end
+        def before_enqueue_set_uuid(*args)
+          uuid = args.shift
+          Resque::Plugins::Status::Hash.create uuid, :options => args
         end
 
         # Removes a job of type <tt>klass<tt> from the queue.
