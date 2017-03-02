@@ -186,7 +186,7 @@ module Resque
       # This will kill the job if it has been added to the kill list with
       # <tt>Resque::Plugins::Status::Hash.kill()</tt>
       def at(num, total, *messages)
-        if total.to_f < 0.0
+        if total.to_f < 0.0 || !total.is_a?(Numeric)
           raise(NotANumber, "Called at() with total=#{total}; dividing by #{total} would result in an invalid percentage")
         elsif total.to_f == 0.0
           completed({
